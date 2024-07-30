@@ -13,13 +13,6 @@ use Seat\Web\Models\User;
 
 class Quote extends Model
 {
-
-    // $table->bigIncrements('id');
-    // $table->bigInteger('killmail_id')->unique();
-    // $table->integer('user')->unsigned();
-    // $table->float('value');
-    // $table->timestamps();
-
     public $timestamps = true;
 
     protected $primaryKey = 'id';

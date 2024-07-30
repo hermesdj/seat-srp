@@ -9,14 +9,15 @@ use Exception;
 use GuzzleHttp\Client;
 use Seat\Eveapi\Models\Character\CharacterInfo;
 use Seat\Eveapi\Models\Killmails\Killmail;
+use Seat\Services\Exceptions\SettingException;
 use stdClass;
 
 trait SrpManager
 {
 
-    public static $FIT_FLAGS = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 87,
+    public static array $FIT_FLAGS = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 87,
         92, 93, 94, 95, 96, 97, 98, 99, 125, 126, 127, 128, 129, 130, 131, 132, 158, 159, 160, 161, 162, 163, ];
-    public static $CARGO_FLAGS = [5, 90, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 148, 149, 151, 155, 176, 177, 179];
+    public static array $CARGO_FLAGS = [5, 90, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 148, 149, 151, 155, 176, 177, 179];
 
     private function srpPopulateSlots(Killmail $killMail): array
     {
@@ -35,7 +36,7 @@ trait SrpManager
             $slotName = InvFlag::find($item->pivot->flag);
             if (! is_object($searchedItem)) {
             } else {
-                array_push($priceList, $searchedItem->typeName);
+                $priceList[] = $searchedItem->typeName;
                 // dd($item->pivot);
                 switch ($slotName->flagName) {
                     case 'Cargo':
@@ -75,7 +76,7 @@ trait SrpManager
         $searchedItem = $killMail->victim->ship;
         $slots['typeId'] = $killMail->victim->ship->typeID;
         $slots['shipType'] = $searchedItem->typeName;
-        array_push($priceList, $searchedItem->typeName);
+        $priceList[] = $searchedItem->typeName;
         $prices = $this->srpGetPrice($killMail, $priceList);
 
         $pilot = CharacterInfo::find($killMail->victim->character_id);
@@ -90,6 +91,9 @@ trait SrpManager
         return $slots;
     }
 
+    /**
+     * @throws SettingException
+     */
     private function srpGetPrice(Killmail $killmail, array $priceList): array
     {
         // Switching logic between advanced and simple rules
@@ -101,6 +105,9 @@ trait SrpManager
         return $this->srpGetSimplePrice($priceList);
     }
 
+    /**
+     * @throws Exception
+     */
     private function srpGetAdvancedPrice(Killmail $killmail, array $priceList): array
     {
         // Start by checking if there is a type rule that matches the ship
@@ -115,6 +122,9 @@ trait SrpManager
         return $this->srpGetRulePrice($rule, $killmail, $priceList);
     }
 
+    /**
+     * @throws Exception
+     */
     private function srpGetRulePrice(AdvRule $rule, Killmail $killmail, array $priceList): array
     {
 

@@ -12,7 +12,7 @@ class MigrateSrpVersionFour extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         // Duplicate the table into a backup for safekeeping
         DB::statement('CREATE TABLE seat_srp_srp_three LIKE seat_srp_srp');
@@ -47,7 +47,7 @@ class MigrateSrpVersionFour extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('seat_srp_srp');
         Schema::rename('seat_srp_srp_three', 'seat_srp_srp');

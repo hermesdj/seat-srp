@@ -11,7 +11,7 @@ class CreateSrpQuotesTable extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('denngarr_seat_quotes', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -27,7 +27,7 @@ class CreateSrpQuotesTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('denngarr_seat_quotes');
     }

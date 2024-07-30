@@ -10,23 +10,30 @@ use Denngarr\Seat\SeatSrp\Validation\AddReason;
 use Denngarr\Seat\SeatSrp\Validation\ValidateAdvancedSettings;
 use Denngarr\Seat\SeatSrp\Validation\ValidateRule;
 use Denngarr\Seat\SeatSrp\Validation\ValidateSettings;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Seat\Eveapi\Jobs\Killmails\Detail;
 use Seat\Eveapi\Models\Killmails\Killmail as EveKillmail;
 use Seat\Eveapi\Models\Killmails\KillmailDetail;
 use Seat\Eveapi\Models\Sde\InvGroup;
 use Seat\Eveapi\Models\Sde\InvType;
+use Seat\Services\Exceptions\SettingException;
 use Seat\Web\Http\Controllers\Controller;
 
 class SrpAdminController extends Controller
 {
-    public function srpGetKillMails()
+    public function srpGetKillMails(): View
     {
         $killmails = KillMail::where('approved', '>', '-2')->orderby('created_at', 'desc')->get();
 
         return view('srp::list', compact('killmails'));
     }
 
-    public function srpApprove($kill_id, $action)
+    public function srpApprove($kill_id, $action): false|string
     {
         $killmail = KillMail::find($kill_id);
 
@@ -53,7 +60,7 @@ class SrpAdminController extends Controller
         return json_encode(['name' => $action, 'value' => $kill_id, 'approver' => auth()->user()->name]);
     }
 
-    public function srpAddReason(AddReason $request)
+    public function srpAddReason(AddReason $request): RedirectResponse
     {
 
         $kill_id = $request->input('srpKillId');
@@ -74,7 +81,7 @@ class SrpAdminController extends Controller
                          ->with('success', trans('srp::srp.note_updated'));
     }
 
-    public function getSrpSettings()
+    public function getSrpSettings(): View
     {
         $rules = AdvRule::all();
 
@@ -87,7 +94,7 @@ class SrpAdminController extends Controller
         return view('srp::settings', compact(['groups', 'types', 'type_rules', 'group_rules']));
     }
 
-    public function saveSrpSettings(ValidateSettings $request)
+    public function saveSrpSettings(ValidateSettings $request): RedirectResponse
     {
         setting(['denngarr_seat_srp_webhook_url', $request->webhook_url], true);
         setting(['denngarr_seat_srp_mention_role', $request->mention_role], true);
@@ -97,7 +104,7 @@ class SrpAdminController extends Controller
         return redirect()->back()->with('success', 'SRP Settings have successfully been updated.');
     }
 
-    public function saveSrpRule(ValidateRule $request)
+    public function saveSrpRule(ValidateRule $request): Application|Response|\Illuminate\Contracts\Foundation\Application|ResponseFactory
     {
         $rule = AdvRule::updateOrCreate([
             'rule_type' => $request->rule_type,
@@ -121,7 +128,7 @@ class SrpAdminController extends Controller
         return response('Added/Updated Type Rule', 200);
     }
 
-    public function removeSrpRule(AdvRule $rule)
+    public function removeSrpRule(AdvRule $rule): RedirectResponse
     {
         $rule->delete();
 
@@ -138,7 +145,10 @@ class SrpAdminController extends Controller
         return $datatable->render('srp::settings');
     }
 
-    public function saveAdvDefaultSettings(ValidateAdvancedSettings $request)
+    /**
+     * @throws SettingException
+     */
+    public function saveAdvDefaultSettings(ValidateAdvancedSettings $request): RedirectResponse
     {
 
         setting(['denngarr_seat_srp_advrule_def_source', $request->default_source], true);
@@ -158,12 +168,12 @@ class SrpAdminController extends Controller
         return redirect()->back()->with('success', 'SRP Settings have successfully been updated.');
     }
 
-    public function getTestView()
+    public function getTestView(): View
     {
         return view('srp::srptest');
     }
 
-    public function runDeletions()
+    public function runDeletions(): false|string
     {
         $deleted = KillMail::where('approved', 99)->delete();
         logger()->info('Deleted ' . $deleted . ' killmails from SRP table');
@@ -171,7 +181,7 @@ class SrpAdminController extends Controller
         return json_encode(['deleted' => $deleted]);
     }
 
-    public function runMissingSearch()
+    public function runMissingSearch(): false|string
     {
         $md = KillMail::doesntHave('details')->get();
         $mdv = KillMail::doesntHave('details.victim')->get();
@@ -196,10 +206,10 @@ class SrpAdminController extends Controller
     }
 
     /**
-     * @param  \Seat\Eveapi\Models\Killmails\Killmail  $killmail
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param EveKillmail $killmail
+     * @return View
      */
-    public function showKillmailDetail(EveKillmail $killmail)
+    public function showKillmailDetail(EveKillmail $killmail):View
     {
         return view('web::common.killmails.modals.show.content', compact('killmail'));
     }

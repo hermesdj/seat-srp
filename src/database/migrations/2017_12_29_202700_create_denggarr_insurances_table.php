@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateDenggarrInsurancesTable extends Migration
 {
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('denngarr_srp_insurances')){
             Schema::create('denngarr_srp_insurances', function (Blueprint $table) {
@@ -50,7 +50,7 @@ class CreateDenggarrInsurancesTable extends Migration
         }
     }
 
-    public function down()
+    public function down(): void
     {
         if (Schema::hasTable('denngarr_srp_insurances'))
             Schema::drop('denngarr_srp_insurances');

@@ -9,6 +9,11 @@ This plugin write for [SeAT](https://github.com/eveseat/seat) is providing to yo
 
 If you have issues with this, you can contact me on Eve as **Crypta Electrica**, or on email as 'crypta@crypta.tech'
 
+TODO :
+- migrer notifs discord
+- migrer price provider
+- migrer v5
+
 ## Quick Installation:
 
 In your seat directory (By default:  /var/www/seat), type the following:

@@ -23,7 +23,10 @@
 namespace Denngarr\Seat\SeatSrp\Http\DataTables;
 
 use Denngarr\Seat\SeatSrp\Models\AdvRule;
+use Illuminate\Http\JsonResponse;
 use Seat\Eveapi\Models\Sde\InvType;
+use Yajra\DataTables\Exceptions\Exception;
+use Yajra\DataTables\Html\Builder;
 use Yajra\DataTables\Services\DataTable;
 
 /**
@@ -34,9 +37,10 @@ use Yajra\DataTables\Services\DataTable;
 class GroupRulesDataTable extends DataTable
 {
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws Exception
      */
-    public function ajax()
+    public function ajax(): JsonResponse
     {
         return datatables()
             ->eloquent($this->query())
@@ -57,9 +61,9 @@ class GroupRulesDataTable extends DataTable
     }
 
     /**
-     * @return \Yajra\DataTables\Html\Builder
+     * @return Builder
      */
-    public function html()
+    public function html(): Builder
     {
         return $this->builder()
             ->postAjax()
@@ -73,7 +77,7 @@ class GroupRulesDataTable extends DataTable
     /**
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function query()
+    public function query(): \Illuminate\Database\Eloquent\Builder
     {
         return AdvRule::where('rule_type', 'group');
     }
@@ -81,7 +85,7 @@ class GroupRulesDataTable extends DataTable
     /**
      * @return array
      */
-    public function columns()
+    public function columns(): array
     {
         return [
             // ['data' => 'type', 'title' => 'Type'],
